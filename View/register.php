@@ -3,17 +3,37 @@
 require_once '../vendor/autoload.php';
 
 // IMPORTANDO A CLASSE USER
-use Model\User;
+use Controller\UserController;
 
-$user = new User();
+$user = new UserController();
 
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if(isset($_POST['user_fullname'], $_POST['email'], $_POST['password'])) {
+$userController = new UserController();
+
+$registerUserMessage = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['user_fullname'], $_POST['email'], $_POST['password'])) {
         $user_fullname = $_POST['user_fullname'];
         $email = $_POST['email'];
         $password = $_POST['password'];
 
-        $user->registerUser($user_fullname, $email, $password);
+        // USO DO CONTROLLER PARA VERIFICAÇÃO DE DE E-MAIL E CADASTRO DE USUÁRIO
+
+        // JÁ EXISTE UM E-MAIL CADASTRADO?
+        if ($userController->checkUserByEmail($email)) {
+            $registerUserMessage = "Já existe um usuário cadastrado com esse endereço de e-mail.";
+        } else {
+            // SE O E-MAIL JÁ EXISTE, CRIE O USUÁRIO
+            if ($userController->registerUser($user_fullname, $email, $password)) {
+                // REDIRECIONAR PARA UMA OUTRA PÁGINA, QUANDO O USUÁRIO FOR CADASTRADO
+                header('Location: ../index.php');
+                exit();
+            } else {
+                $registerUserMessage = 'Erro ao registrar informações.';
+            }
+
+        }
+
     }
 }
 
