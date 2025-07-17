@@ -31,27 +31,38 @@ class UserController
         }
     }
 
+    public function checkUserByEmail($email){
+        return $this->userModel->getUserByEmail($email);
+    }
+
+
     // LOGIN DE USUÁRIO
-    public function login($email, $password) {
+    public function login($email, $password)
+    {
         $user = $this->userModel->getUserByEmail($email);
 
-        if($user) {
-            if(crypt($password, $user['password']) ){
-                $_SESSION['id'] = $user['id'];
-                $_SESSION['user_fullname'] = $user['user_fullname'];
-                $_SESSION['email'] = $user['email'];
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['id'] = $user['id'];
+            $_SESSION['user_fullname'] = $user['user_fullname'];
+            $_SESSION['email'] = $user['email'];
 
-                return true;
-            } else {
-                return false;
-            }
+            return true;
         }
         return false;
     }
 
     // USUÁRIO LOGADO?
-
+    public function isLoggedIn() {
+        return isset($_SESSION['id']);
+    }
     // RESGATAR DADOS DO USUÁRIO
+
+    public function getUserData($id, $user_fullname, $email){
+        $id = $_SESSION['id'];
+
+        return $this->userModel->getUserInfo($id, $user_fullname, $email);
+    }
+
 }
 
 ?>
